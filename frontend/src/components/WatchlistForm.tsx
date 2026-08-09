@@ -25,6 +25,8 @@ export function WatchlistForm({ onAdd }: WatchlistFormProps) {
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.status === 409) {
         setError('Already in your watchlist')
+      } else if (axios.isAxiosError(err) && err.response?.status === 400) {
+        setError(err.response.data?.detail ?? 'Invalid ticker')
       } else {
         setError('Failed to add ticker')
       }

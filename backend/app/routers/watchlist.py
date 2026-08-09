@@ -9,6 +9,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.deps import CurrentUserId, DbSession
 from app.models import WatchlistItem
+from app.services.market_data import MarketDataError, fetch_price
 
 router = APIRouter(prefix="/watchlist", tags=["watchlist"])
 
@@ -37,9 +38,19 @@ def list_watchlist(db=DbSession, user_id: str = CurrentUserId):
 
 @router.post("", response_model=WatchlistItemOut, status_code=status.HTTP_201_CREATED)
 def add_watchlist_item(payload: WatchlistItemCreate, db=DbSession, user_id: str = CurrentUserId):
+    ticker = payload.ticker.strip().upper()
+
+    try:
+        fetch_price(ticker, payload.asset_type)
+    except MarketDataError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Could not find a {payload.asset_type} ticker '{ticker}' — check the symbol and try again.",
+        )
+
     item = WatchlistItem(
         user_id=user_id,
-        ticker=payload.ticker.strip().upper(),
+        ticker=ticker,
         asset_type=payload.asset_type,
     )
     db.add(item)
