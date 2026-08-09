@@ -1,41 +1,22 @@
 import { motion } from 'framer-motion'
 import { Bitcoin, LineChart as LineChartIcon, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { Insight, PricePoint, WatchlistItem } from '../lib/api'
-import { fetchInsight, fetchPriceHistory } from '../lib/api'
 import { NarrativeCard } from './NarrativeCard'
 import { PriceChart } from './PriceChart'
 import { SentimentGauge } from './SentimentGauge'
+import { TickerCardSkeleton } from './Skeleton'
 
 interface TickerCardProps {
   item: WatchlistItem
+  insight: Insight | null
+  history: PricePoint[]
+  loading: boolean
   onRemove: (id: string) => void
 }
 
-export function TickerCard({ item, onRemove }: TickerCardProps) {
-  const [insight, setInsight] = useState<Insight | null>(null)
-  const [history, setHistory] = useState<PricePoint[]>([])
-  const [loading, setLoading] = useState(true)
+export function TickerCard({ item, insight, history, loading, onRemove }: TickerCardProps) {
   const [removing, setRemoving] = useState(false)
-
-  useEffect(() => {
-    let cancelled = false
-    setLoading(true)
-
-    Promise.all([fetchInsight(item.ticker), fetchPriceHistory(item.ticker)])
-      .then(([insightData, historyData]) => {
-        if (cancelled) return
-        setInsight(insightData)
-        setHistory(historyData)
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [item.ticker])
 
   async function handleRemove() {
     setRemoving(true)
@@ -44,6 +25,10 @@ export function TickerCard({ item, onRemove }: TickerCardProps) {
     } catch {
       setRemoving(false)
     }
+  }
+
+  if (loading) {
+    return <TickerCardSkeleton />
   }
 
   const price = insight?.price ?? history[history.length - 1] ?? null
@@ -94,25 +79,19 @@ export function TickerCard({ item, onRemove }: TickerCardProps) {
         </div>
       </div>
 
-      {loading ? (
-        <div className="flex h-40 items-center justify-center">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-border border-t-accent" />
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <PriceChart history={history} />
-          {insight ? (
-            <>
-              <SentimentGauge score={insight.sentiment_score} />
-              <NarrativeCard narrative={insight.narrative} generatedAt={insight.generated_at} />
-            </>
-          ) : (
-            <p className="text-sm text-muted">
-              No insight yet — it will appear after the next scheduled refresh.
-            </p>
-          )}
-        </div>
-      )}
+      <div className="space-y-4">
+        <PriceChart history={history} />
+        {insight ? (
+          <>
+            <SentimentGauge score={insight.sentiment_score} />
+            <NarrativeCard narrative={insight.narrative} generatedAt={insight.generated_at} />
+          </>
+        ) : (
+          <p className="text-sm text-muted">
+            No insight yet — it will appear after the next scheduled refresh.
+          </p>
+        )}
+      </div>
     </motion.div>
   )
 }
