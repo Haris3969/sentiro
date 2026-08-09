@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { LogOut, TrendingUp } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { AskAI } from '../components/AskAI'
 import { AuroraBackground } from '../components/AuroraBackground'
 import { TickerCard } from '../components/TickerCard'
 import { WatchlistForm } from '../components/WatchlistForm'
@@ -95,6 +96,8 @@ export function Dashboard() {
           </div>
         )}
       </div>
+
+      <AskAI />
     </div>
   )
 }

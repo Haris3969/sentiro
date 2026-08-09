@@ -72,3 +72,8 @@ export async function fetchPriceHistory(ticker: string): Promise<PricePoint[]> {
   const { data } = await api.get<PricePoint[]>(`/prices/${ticker}`)
   return data
 }
+
+export async function askAI(question: string): Promise<string> {
+  const { data } = await api.post<{ answer: string }>('/ask', { question }, { timeout: 45000 })
+  return data.answer
+}
