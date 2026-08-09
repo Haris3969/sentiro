@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     database_url: str
 
     gemini_api_key: str = ""
+    openrouter_api_key: str = ""
+    cohere_api_key: str = ""
     marketaux_api_key: str = ""
     newsapi_key: str = ""
 
