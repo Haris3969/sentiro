@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Bitcoin, LineChart as LineChartIcon, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { useState } from 'react'
 import type { Insight, PricePoint, WatchlistItem } from '../lib/api'
 import { NarrativeCard } from './NarrativeCard'
@@ -32,66 +32,76 @@ export function TickerCard({ item, insight, history, loading, onRemove }: Ticker
   }
 
   const price = insight?.price ?? history[history.length - 1] ?? null
-  const Icon = item.asset_type === 'crypto' ? Bitcoin : LineChartIcon
+  const changeTone =
+    price?.change_pct == null
+      ? 'text-dim'
+      : price.change_pct >= 0
+        ? 'text-bull'
+        : 'text-bear'
 
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.96 }}
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.3 }}
-      className="glass group relative overflow-hidden rounded-2xl border border-border p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] transition-shadow hover:border-accent/40 hover:shadow-[0_8px_40px_-12px_var(--color-accent)]"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15, ease: 'easeOut' }}
+      className="group rounded-xl border border-border bg-surface p-4 transition-colors duration-150 ease-out hover:border-border-strong focus-within:border-border-strong"
     >
-      <div className="mb-4 flex items-start justify-between">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent/20 to-accent-2/20 text-accent">
-            <Icon size={18} />
-          </div>
-          <div>
-            <h3 className="font-display text-lg font-semibold leading-none text-text">
-              {item.ticker}
-            </h3>
-            <span className="text-xs uppercase tracking-wide text-muted">{item.asset_type}</span>
-          </div>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <h3 className="truncate text-[20px] font-semibold leading-none tracking-tight text-text">
+            {item.ticker}
+          </h3>
+          <span className="shrink-0 rounded border border-border px-1.5 py-px text-[10px] uppercase tracking-wider text-dim">
+            {item.asset_type}
+          </span>
         </div>
-        <div className="flex items-center gap-3">
+
+        <div className="flex items-start gap-2">
           {price && (
-            <div className="text-right">
-              <div className="font-mono text-sm text-text">${price.price.toFixed(2)}</div>
+            <div className="text-right leading-none">
+              <div className="text-[20px] font-medium tabular-nums text-text">
+                ${price.price.toFixed(2)}
+              </div>
               {price.change_pct !== null && (
-                <div className={price.change_pct >= 0 ? 'text-xs text-bull' : 'text-xs text-bear'}>
+                <div className={`mt-1 text-[13px] tabular-nums ${changeTone}`}>
                   {price.change_pct >= 0 ? '+' : ''}
                   {price.change_pct.toFixed(2)}%
                 </div>
               )}
             </div>
           )}
+          {/* Space is always reserved so revealing this causes no layout shift. */}
           <button
             onClick={handleRemove}
             disabled={removing}
-            className="rounded-md p-1 text-muted opacity-0 transition-opacity hover:text-bear group-hover:opacity-100 disabled:opacity-50"
+            className="-mr-1 -mt-1 rounded p-1 text-dim opacity-0 transition-[opacity,color] duration-150 ease-out hover:text-bear focus:opacity-100 group-hover:opacity-100 disabled:opacity-30"
             aria-label={`Remove ${item.ticker}`}
           >
-            <X size={16} />
+            <X size={14} />
           </button>
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="mt-3">
         <PriceChart history={history} />
-        {insight ? (
-          <>
-            <SentimentGauge score={insight.sentiment_score} />
-            <NarrativeCard narrative={insight.narrative} generatedAt={insight.generated_at} />
-          </>
-        ) : (
-          <p className="text-sm text-muted">
-            No insight yet — it will appear after the next scheduled refresh.
-          </p>
-        )}
       </div>
+
+      {insight ? (
+        <>
+          <div className="mt-3">
+            <SentimentGauge score={insight.sentiment_score} />
+          </div>
+          <div className="mt-3">
+            <NarrativeCard narrative={insight.narrative} generatedAt={insight.generated_at} />
+          </div>
+        </>
+      ) : (
+        <p className="mt-3 text-[12px] text-dim">
+          No insight yet — appears after the next scheduled refresh.
+        </p>
+      )}
     </motion.div>
   )
 }

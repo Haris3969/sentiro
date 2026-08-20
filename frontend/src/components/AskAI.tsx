@@ -42,74 +42,66 @@ export function AskAI() {
 
   return (
     <>
-      <motion.button
+      <button
         onClick={() => setOpen((v) => !v)}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-accent to-accent-2 text-bg shadow-lg shadow-accent/30"
+        className="fixed bottom-5 right-5 z-40 grid h-10 w-10 place-items-center rounded-full border border-border bg-surface text-muted transition-colors duration-150 ease-out hover:border-border-strong hover:text-text"
         aria-label="Ask AI"
       >
-        {open ? <X size={22} /> : <MessageCircle size={22} />}
-      </motion.button>
+        {open ? <X size={16} /> : <MessageCircle size={16} />}
+      </button>
 
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: 16, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 16, scale: 0.97 }}
-            transition={{ duration: 0.2 }}
-            className="glass fixed bottom-24 right-6 z-40 flex h-[28rem] w-[22rem] flex-col overflow-hidden rounded-2xl border border-border shadow-2xl"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.15, ease: 'easeOut' }}
+            className="fixed bottom-[68px] right-5 z-40 flex h-[26rem] w-[21rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-xl border border-border bg-surface"
           >
-            <div className="flex items-center gap-2 border-b border-border p-3">
-              <Sparkles size={16} className="text-accent" />
-              <span className="font-display text-sm font-semibold text-text">Ask about your watchlist</span>
+            <div className="flex items-center gap-1.5 border-b border-border px-3 py-2.5">
+              <Sparkles size={12} className="text-dim" aria-hidden />
+              <span className="text-[12px] font-medium text-text">Ask about your watchlist</span>
             </div>
 
-            <div className="flex-1 space-y-3 overflow-y-auto p-3">
+            <div className="flex-1 space-y-2.5 overflow-y-auto p-3">
               {messages.length === 0 && (
-                <p className="text-sm text-muted">
-                  Ask things like "Why is TSLA down?" or "Which ticker looks most bullish?" — answers use
-                  your cached watchlist data.
+                <p className="text-[12px] leading-[1.5] text-dim">
+                  Try “Why is TSLA down?” or “Which ticker looks most bullish?”
                 </p>
               )}
               {messages.map((m, i) => (
                 <div
                   key={i}
-                  className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
+                  className={`max-w-[88%] rounded-lg px-2.5 py-1.5 text-[13px] leading-[1.5] ${
                     m.role === 'user'
                       ? 'ml-auto bg-accent text-bg'
-                      : 'bg-surface-2 text-text'
+                      : 'bg-surface-2 text-muted'
                   }`}
                 >
                   {m.text}
                 </div>
               ))}
-              {loading && (
-                <div className="flex items-center gap-2 text-sm text-muted">
-                  <div className="h-3 w-3 animate-spin rounded-full border-2 border-border border-t-accent" />
-                  Thinking…
-                </div>
-              )}
-              {error && <p className="text-sm text-bear">{error}</p>}
+              {loading && <p className="text-[12px] text-dim">Thinking…</p>}
+              {error && <p className="text-[12px] text-bear">{error}</p>}
             </div>
 
-            <form onSubmit={handleSubmit} className="flex items-center gap-2 border-t border-border p-3">
+            <form onSubmit={handleSubmit} className="flex items-center gap-1.5 border-t border-border p-2">
               <input
                 type="text"
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
                 placeholder="Ask a question…"
                 disabled={loading}
-                className="flex-1 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text placeholder:text-muted focus:border-accent focus:outline-none disabled:opacity-50"
+                className="min-w-0 flex-1 rounded-md border border-border bg-bg px-2.5 py-1.5 text-[13px] text-text placeholder:text-dim transition-colors duration-150 ease-out focus:border-border-strong focus:outline-none disabled:opacity-50"
               />
               <button
                 type="submit"
                 disabled={loading || !question.trim()}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent-2 text-bg disabled:opacity-40"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-accent text-bg transition-opacity duration-150 ease-out disabled:opacity-30"
                 aria-label="Send"
               >
-                <Send size={15} />
+                <Send size={13} />
               </button>
             </form>
           </motion.div>

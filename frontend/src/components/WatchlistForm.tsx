@@ -1,6 +1,5 @@
-import { useState, type FormEvent } from 'react'
 import axios from 'axios'
-import { Plus } from 'lucide-react'
+import { useState, type FormEvent } from 'react'
 
 interface WatchlistFormProps {
   onAdd: (ticker: string, assetType: 'stock' | 'crypto') => Promise<void>
@@ -35,44 +34,49 @@ export function WatchlistForm({ onAdd }: WatchlistFormProps) {
     }
   }
 
+  const segment = (value: 'stock' | 'crypto', text: string) => (
+    <button
+      type="button"
+      onClick={() => setAssetType(value)}
+      aria-pressed={assetType === value}
+      className={`rounded px-2 py-1 text-[12px] transition-colors duration-150 ease-out ${
+        assetType === value ? 'bg-surface-2 text-text' : 'text-dim hover:text-muted'
+      }`}
+    >
+      {text}
+    </button>
+  )
+
   return (
-    <form onSubmit={handleSubmit} className="glass flex flex-wrap items-center gap-2 rounded-xl border border-border p-2">
-      <input
-        type="text"
-        value={ticker}
-        onChange={(e) => setTicker(e.target.value.toUpperCase())}
-        placeholder="Add a ticker — AAPL, BTC, TSLA…"
-        className="min-w-[220px] flex-1 rounded-lg bg-transparent px-3 py-2 text-sm text-text placeholder:text-muted focus:outline-none"
-      />
-      <div className="flex overflow-hidden rounded-lg border border-border">
-        <button
-          type="button"
-          onClick={() => setAssetType('stock')}
-          className={`px-3 py-2 text-xs font-medium transition-colors ${
-            assetType === 'stock' ? 'bg-accent text-bg' : 'text-muted hover:text-text'
-          }`}
-        >
-          Stock
-        </button>
-        <button
-          type="button"
-          onClick={() => setAssetType('crypto')}
-          className={`px-3 py-2 text-xs font-medium transition-colors ${
-            assetType === 'crypto' ? 'bg-accent text-bg' : 'text-muted hover:text-text'
-          }`}
-        >
-          Crypto
-        </button>
-      </div>
-      <button
-        type="submit"
-        disabled={submitting || !ticker.trim()}
-        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-accent to-accent-2 px-4 py-2 text-sm font-medium text-bg transition-opacity disabled:opacity-40"
+    <div>
+      <form
+        onSubmit={handleSubmit}
+        className="flex h-10 items-center gap-1.5 rounded-lg border border-border bg-surface pl-3 pr-1.5 transition-colors duration-150 ease-out focus-within:border-border-strong"
       >
-        <Plus size={16} />
-        {submitting ? 'Adding…' : 'Add'}
-      </button>
-      {error && <span className="text-sm text-bear">{error}</span>}
-    </form>
+        <input
+          type="text"
+          value={ticker}
+          onChange={(e) => setTicker(e.target.value.toUpperCase())}
+          placeholder="Add ticker"
+          aria-label="Ticker symbol"
+          className="min-w-0 flex-1 bg-transparent text-[13px] text-text placeholder:text-dim focus:outline-none"
+        />
+
+        <div className="flex shrink-0 items-center gap-0.5 rounded-md bg-white/[0.04] p-0.5">
+          {segment('stock', 'Stock')}
+          {segment('crypto', 'Crypto')}
+        </div>
+
+        <button
+          type="submit"
+          disabled={submitting || !ticker.trim()}
+          className="shrink-0 rounded-md bg-accent px-3 py-1.5 text-[12px] font-medium text-bg transition-opacity duration-150 ease-out disabled:opacity-30"
+        >
+          {submitting ? 'Adding' : 'Add'}
+        </button>
+      </form>
+
+      {error && <p className="mt-1.5 text-[12px] text-bear">{error}</p>}
+    </div>
   )
 }

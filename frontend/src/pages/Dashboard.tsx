@@ -1,8 +1,7 @@
-import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowDownAZ, LogOut, TrendingUp } from 'lucide-react'
+import { AnimatePresence } from 'framer-motion'
+import { TrendingUp } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { AskAI } from '../components/AskAI'
-import { AuroraBackground } from '../components/AuroraBackground'
 import { TickerCardSkeleton } from '../components/Skeleton'
 import { TickerCard } from '../components/TickerCard'
 import { WatchlistForm } from '../components/WatchlistForm'
@@ -53,6 +52,7 @@ export function Dashboard() {
   const [error, setError] = useState<string | null>(null)
   const [sortMode, setSortMode] = useState<SortMode>('recent')
   const [suggesting, setSuggesting] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     fetchWatchlist()
@@ -132,107 +132,110 @@ export function Dashboard() {
     }
   }, [items, dataByTicker, sortMode])
 
+  const email = session?.user.email ?? ''
+  const initial = email.charAt(0).toUpperCase() || '?'
+
   return (
-    <div className="relative min-h-screen">
-      <AuroraBackground />
-
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <motion.div
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="mb-8 flex items-center justify-between"
-        >
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-accent-2 text-bg shadow-lg shadow-accent/25">
-              <TrendingUp size={20} />
+    <div className="min-h-screen bg-bg">
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-6">
+        <header className="flex h-14 items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="grid h-7 w-7 place-items-center rounded-lg bg-accent text-bg">
+              <TrendingUp size={15} />
             </div>
-            <div>
-              <h1 className="font-display text-2xl font-semibold text-text">Sentiro</h1>
-              <p className="text-xs text-muted">{session?.user.email}</p>
-            </div>
+            <span className="text-[14px] font-semibold tracking-tight text-text">Sentiro</span>
           </div>
-          <button
-            onClick={() => supabase.auth.signOut()}
-            className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm text-muted transition-colors hover:border-bear/40 hover:text-bear"
-          >
-            <LogOut size={14} />
-            Sign out
-          </button>
-        </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className="mb-4"
-        >
-          <WatchlistForm onAdd={handleAdd} />
-        </motion.div>
+          <div className="relative">
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-label="Account menu"
+              aria-expanded={menuOpen}
+              className="grid h-8 w-8 place-items-center rounded-full border border-border bg-surface text-[12px] font-medium text-muted transition-colors duration-150 ease-out hover:border-border-strong hover:text-text"
+            >
+              {initial}
+            </button>
 
-        {error && <p className="text-sm text-bear">{error}</p>}
+            {menuOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+                <div className="absolute right-0 z-20 mt-1.5 w-52 rounded-lg border border-border bg-surface p-1">
+                  <div className="truncate px-2 py-1.5 text-[11px] text-dim">{email}</div>
+                  <button
+                    onClick={() => supabase.auth.signOut()}
+                    className="w-full rounded-md px-2 py-1.5 text-left text-[13px] text-muted transition-colors duration-150 ease-out hover:bg-white/[0.04] hover:text-text"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </header>
 
-        {!loading && items.length > 0 && (
-          <div className="mb-4 flex items-center justify-end gap-2">
-            <ArrowDownAZ size={14} className="text-muted" />
+        <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-start">
+          <div className="w-full sm:max-w-md">
+            <WatchlistForm onAdd={handleAdd} />
+          </div>
+
+          {!loading && items.length > 0 && (
             <select
               value={sortMode}
               onChange={(e) => setSortMode(e.target.value as SortMode)}
-              className="rounded-lg border border-border bg-surface px-2 py-1.5 text-xs text-text focus:border-accent focus:outline-none"
+              aria-label="Sort watchlist"
+              className="h-10 shrink-0 rounded-lg border border-transparent bg-transparent px-2 text-[12px] text-muted transition-colors duration-150 ease-out hover:border-border hover:text-text focus:outline-none sm:ml-auto"
             >
               {SORT_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
+                <option key={opt.value} value={opt.value} className="bg-surface text-text">
                   {opt.label}
                 </option>
               ))}
             </select>
-          </div>
-        )}
+          )}
+        </div>
 
-        {loading ? (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {[...Array(3)].map((_, i) => (
-              <TickerCardSkeleton key={i} />
-            ))}
-          </div>
-        ) : items.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="glass rounded-2xl border border-dashed border-border p-12 text-center"
-          >
-            <p className="mb-4 text-sm text-muted">
-              Your watchlist is empty. Add a stock or crypto ticker above, or try one of these:
-            </p>
-            <div className="flex flex-wrap justify-center gap-2">
-              {SUGGESTED_TICKERS.map((s) => (
-                <button
-                  key={s.ticker}
-                  disabled={suggesting}
-                  onClick={() => handleSuggestedAdd(s.ticker, s.assetType)}
-                  className="rounded-full border border-border px-3 py-1.5 text-xs text-text transition-colors hover:border-accent hover:text-accent disabled:opacity-50"
-                >
-                  {s.ticker}
-                </button>
+        {error && <p className="mt-3 text-[12px] text-bear">{error}</p>}
+
+        <div className="mt-4 pb-16">
+          {loading ? (
+            <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(320px,1fr))]">
+              {[...Array(4)].map((_, i) => (
+                <TickerCardSkeleton key={i} />
               ))}
             </div>
-          </motion.div>
-        ) : (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-            <AnimatePresence mode="popLayout">
-              {sortedItems.map((item) => (
-                <TickerCard
-                  key={item.id}
-                  item={item}
-                  insight={dataByTicker[item.ticker]?.insight ?? null}
-                  history={dataByTicker[item.ticker]?.history ?? []}
-                  loading={!(item.ticker in dataByTicker)}
-                  onRemove={handleRemove}
-                />
-              ))}
-            </AnimatePresence>
-          </div>
-        )}
+          ) : items.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-border p-10 text-center">
+              <p className="text-[13px] text-muted">Your watchlist is empty.</p>
+              <div className="mt-4 flex flex-wrap justify-center gap-1.5">
+                {SUGGESTED_TICKERS.map((s) => (
+                  <button
+                    key={s.ticker}
+                    disabled={suggesting}
+                    onClick={() => handleSuggestedAdd(s.ticker, s.assetType)}
+                    className="rounded-md border border-border px-2.5 py-1 text-[12px] text-muted transition-colors duration-150 ease-out hover:border-border-strong hover:text-text disabled:opacity-30"
+                  >
+                    {s.ticker}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(320px,1fr))]">
+              <AnimatePresence mode="popLayout">
+                {sortedItems.map((item) => (
+                  <TickerCard
+                    key={item.id}
+                    item={item}
+                    insight={dataByTicker[item.ticker]?.insight ?? null}
+                    history={dataByTicker[item.ticker]?.history ?? []}
+                    loading={!(item.ticker in dataByTicker)}
+                    onRemove={handleRemove}
+                  />
+                ))}
+              </AnimatePresence>
+            </div>
+          )}
+        </div>
       </div>
 
       <AskAI />

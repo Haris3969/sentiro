@@ -1,89 +1,75 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #06070c;
-  --color-surface: #0f1119;
-  --color-surface-2: #151826;
-  --color-border: #232637;
-  --color-text: #e8e9f0;
-  --color-muted: #8b8fa3;
-  --color-bull: #34d399;
-  --color-bear: #fb7185;
-  --color-accent: #818cf8;
-  --color-accent-2: #c084fc;
+  --color-bg: #0a0a0b;
+  --color-surface: #141416;
+  --color-surface-2: #1b1b1f;
 
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-display: "Space Grotesk", system-ui, sans-serif;
+  /* Hairlines, not shadows. */
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-border-strong: rgba(255, 255, 255, 0.12);
+
+  --color-text: #ededef;
+  --color-muted: #8f8f99;
+  /* Dedicated dim token for 11px labels. Using a literal 45% opacity on this
+     background would fall under the 3:1 contrast floor, so the tint is baked
+     in at a value that clears it instead. */
+  --color-dim: #6e6e78;
+
+  /* Semantic only — desaturated, never neon, never used for branding. */
+  --color-bull: #5cc78f;
+  --color-bear: #e0757a;
+  --color-flat: #7a7a85;
+
+  /* The single accent. Interactive/primary actions only — never decoration. */
+  --color-accent: #7c86ff;
+
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+html {
+  background: var(--color-bg);
 }
 
 body {
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
-}
-
-h1,
-h2,
-h3 {
-  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--color-accent) 35%, transparent);
+  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-accent);
+  background: rgba(255, 255, 255, 0.14);
 }
 
-.glass {
-  background: color-mix(in srgb, var(--color-surface) 55%, transparent);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+:focus-visible {
+  outline: 1px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
-@keyframes aurora-drift {
-  0% {
-    transform: translate(0, 0) scale(1);
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
-  50% {
-    transform: translate(4%, -3%) scale(1.08);
-  }
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-}
-
-.aurora-blob {
-  animation: aurora-drift 18s ease-in-out infinite;
-  filter: blur(90px);
-}
-
-@keyframes grid-fade {
-  0%,
-  100% {
-    opacity: 0.35;
-  }
-  50% {
-    opacity: 0.55;
-  }
-}
-
-.bg-grid {
-  background-image:
-    linear-gradient(color-mix(in srgb, var(--color-border) 70%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--color-border) 70%, transparent) 1px, transparent 1px);
-  background-size: 48px 48px;
-  animation: grid-fade 10s ease-in-out infinite;
 }
