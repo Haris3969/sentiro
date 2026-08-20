@@ -1,24 +1,12 @@
+import { clampScore, labelForScore, toneForScore } from '../lib/sentiment'
+
 interface SentimentGaugeProps {
   score: number
 }
 
-function label(score: number): string {
-  if (score >= 0.5) return 'Very bullish'
-  if (score >= 0.15) return 'Bullish'
-  if (score > -0.15) return 'Neutral'
-  if (score > -0.5) return 'Bearish'
-  return 'Very bearish'
-}
-
-function color(score: number): string {
-  if (score > 0.15) return 'var(--color-bull)'
-  if (score < -0.15) return 'var(--color-bear)'
-  return 'var(--color-flat)'
-}
-
 export function SentimentGauge({ score }: SentimentGaugeProps) {
-  const clamped = Math.max(-1, Math.min(1, score))
-  const tone = color(clamped)
+  const clamped = clampScore(score)
+  const tone = toneForScore(clamped)
 
   // Center-anchored: the fill grows out from 50% toward whichever end.
   const magnitude = Math.abs(clamped) * 50
@@ -37,7 +25,26 @@ export function SentimentGauge({ score }: SentimentGaugeProps) {
         {clamped >= 0 ? '+' : ''}
         {clamped.toFixed(2)}
       </span>
-      <span className="text-[11px] uppercase tracking-wider text-dim">{label(clamped)}</span>
+      <span className="text-[11px] uppercase tracking-wider text-dim">{labelForScore(clamped)}</span>
     </div>
+  )
+}
+
+/** Trend indicator: "+0.18 vs. yesterday". Renders nothing without a prior snapshot. */
+export function SentimentDelta({ delta }: { delta: number | null }) {
+  if (delta === null) return null
+
+  const flat = Math.abs(delta) < 0.005
+  const tone = flat
+    ? 'var(--color-flat)'
+    : delta > 0
+      ? 'var(--color-bull)'
+      : 'var(--color-bear)'
+
+  return (
+    <span className="text-[11px] tabular-nums" style={{ color: tone }}>
+      {flat ? 'flat' : `${delta > 0 ? '+' : ''}${delta.toFixed(2)}`}
+      <span className="text-dim"> vs. yesterday</span>
+    </span>
   )
 }

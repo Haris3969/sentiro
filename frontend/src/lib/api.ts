@@ -30,10 +30,41 @@ export interface PricePoint {
 
 export interface Insight {
   ticker: string
+  asset_type: 'stock' | 'crypto'
   sentiment_score: number
+  label: string
   narrative: string
   generated_at: string
   price: PricePoint | null
+  /** Change vs. the closest snapshot ~24h ago; null when there's no prior one. */
+  score_delta_24h: number | null
+}
+
+export type SeriesRange = '1D' | '1W' | '1M' | '3M' | '1Y'
+
+export interface SeriesPoint {
+  bucket: string
+  avg_score: number
+  min_score: number
+  max_score: number
+  avg_price: number | null
+  sample_count: number
+}
+
+export interface SentimentSeries {
+  ticker: string
+  range: SeriesRange
+  points: SeriesPoint[]
+}
+
+export interface NewsItem {
+  id: string
+  title: string
+  source: string | null
+  url: string
+  published_at: string | null
+  sentiment_score: number | null
+  summary: string | null
 }
 
 export async function fetchWatchlist(): Promise<WatchlistItem[]> {
@@ -70,6 +101,21 @@ export async function fetchInsight(ticker: string): Promise<Insight | null> {
 
 export async function fetchPriceHistory(ticker: string): Promise<PricePoint[]> {
   const { data } = await api.get<PricePoint[]>(`/prices/${ticker}`)
+  return data
+}
+
+export async function fetchSentimentSeries(
+  ticker: string,
+  range: SeriesRange,
+): Promise<SentimentSeries> {
+  const { data } = await api.get<SentimentSeries>(`/insights/${ticker}/series`, {
+    params: { range },
+  })
+  return data
+}
+
+export async function fetchNews(ticker: string, limit = 5, offset = 0): Promise<NewsItem[]> {
+  const { data } = await api.get<NewsItem[]>(`/news/${ticker}`, { params: { limit, offset } })
   return data
 }
 

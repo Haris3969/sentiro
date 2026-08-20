@@ -1,5 +1,11 @@
-export function Skeleton({ className = '' }: { className?: string }) {
-  return <div className={`animate-pulse rounded bg-white/[0.05] ${className}`} />
+export function Skeleton({
+  className = '',
+  style,
+}: {
+  className?: string
+  style?: React.CSSProperties
+}) {
+  return <div className={`animate-pulse rounded bg-white/[0.05] ${className}`} style={style} />
 }
 
 export function TickerCardSkeleton() {

@@ -1,0 +1,3 @@
+ALTER TABLE public.price_snapshots ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.news_articles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.insight_cache ENABLE ROW LEVEL SECURITY;

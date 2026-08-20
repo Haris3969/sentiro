@@ -1,10 +1,13 @@
 import { motion } from 'framer-motion'
-import { X } from 'lucide-react'
+import { ChevronRight, X } from 'lucide-react'
 import { useState } from 'react'
 import type { Insight, PricePoint, WatchlistItem } from '../lib/api'
+import { Drawer } from './Drawer'
 import { NarrativeCard } from './NarrativeCard'
+import { NewsList } from './NewsList'
 import { PriceChart } from './PriceChart'
-import { SentimentGauge } from './SentimentGauge'
+import { SentimentDelta, SentimentGauge } from './SentimentGauge'
+import { SentimentTrendChart } from './SentimentTrendChart'
 import { TickerCardSkeleton } from './Skeleton'
 
 interface TickerCardProps {
@@ -17,6 +20,7 @@ interface TickerCardProps {
 
 export function TickerCard({ item, insight, history, loading, onRemove }: TickerCardProps) {
   const [removing, setRemoving] = useState(false)
+  const [expanded, setExpanded] = useState(false)
 
   async function handleRemove() {
     setRemoving(true)
@@ -93,6 +97,9 @@ export function TickerCard({ item, insight, history, loading, onRemove }: Ticker
           <div className="mt-3">
             <SentimentGauge score={insight.sentiment_score} />
           </div>
+          <div className="mt-1.5 pl-0">
+            <SentimentDelta delta={insight.score_delta_24h} />
+          </div>
           <div className="mt-3">
             <NarrativeCard narrative={insight.narrative} generatedAt={insight.generated_at} />
           </div>
@@ -102,6 +109,31 @@ export function TickerCard({ item, insight, history, loading, onRemove }: Ticker
           No insight yet — appears after the next scheduled refresh.
         </p>
       )}
+
+      <div className="mt-3 border-t border-border pt-2.5">
+        {/* Opens a drawer rather than expanding inline: cards sit in a CSS grid,
+            so an expanded card would stretch its whole row and leave a dead
+            column beside the shorter ones. */}
+        <button
+          onClick={() => setExpanded(true)}
+          className="flex w-full items-center justify-between text-[11px] text-dim transition-colors duration-150 ease-out hover:text-text"
+        >
+          History &amp; news
+          <ChevronRight size={13} aria-hidden />
+        </button>
+      </div>
+
+      <Drawer
+        open={expanded}
+        onClose={() => setExpanded(false)}
+        title={item.ticker}
+        subtitle={`${item.asset_type} · sentiment history and recent headlines`}
+      >
+        <div className="space-y-6">
+          <SentimentTrendChart ticker={item.ticker} />
+          <NewsList ticker={item.ticker} limit={8} />
+        </div>
+      </Drawer>
     </motion.div>
   )
 }

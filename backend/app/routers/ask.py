@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 
 from app.deps import CurrentUserId, DbSession
-from app.models import InsightCache, PriceSnapshot, WatchlistItem
+from app.models import PriceSnapshot, SentimentSnapshot, WatchlistItem
 from app.services.llm import LLMError, answer_question
 
 router = APIRouter(prefix="/ask", tags=["ask"])
@@ -58,9 +58,9 @@ def _build_watchlist_context(db, items: list[WatchlistItem]) -> str:
     lines = []
     for item in items:
         insight = db.scalar(
-            select(InsightCache)
-            .where(InsightCache.ticker == item.ticker)
-            .order_by(InsightCache.generated_at.desc())
+            select(SentimentSnapshot)
+            .where(SentimentSnapshot.ticker == item.ticker)
+            .order_by(SentimentSnapshot.generated_at.desc())
             .limit(1)
         )
 
