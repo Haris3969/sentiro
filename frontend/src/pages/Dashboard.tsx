@@ -15,9 +15,9 @@ import {
   type PricePoint,
   type WatchlistItem,
 } from '../lib/api'
-import { useAuth } from '../lib/auth'
+import { useAuth } from '../lib/useAuth'
 import { supabase } from '../lib/supabase'
-import { useToast } from '../lib/toast'
+import { useToast } from '../lib/useToast'
 
 type SortMode = 'recent' | 'sentiment-desc' | 'sentiment-asc' | 'change-desc' | 'change-asc' | 'alpha'
 

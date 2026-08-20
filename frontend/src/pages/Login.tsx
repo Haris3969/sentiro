@@ -2,7 +2,7 @@ import { TrendingUp } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { Navigate } from 'react-router-dom'
 import { LoginBolts } from '../components/LoginBolts'
-import { useAuth } from '../lib/auth'
+import { useAuth } from '../lib/useAuth'
 import { supabase } from '../lib/supabase'
 
 export function Login() {

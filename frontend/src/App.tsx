@@ -1,6 +1,7 @@
 import { MotionConfig } from 'framer-motion'
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { AuthProvider, useAuth } from './lib/auth'
+import { AuthProvider } from './lib/auth'
+import { useAuth } from './lib/useAuth'
 import { ToastProvider } from './lib/toast'
 import { Dashboard } from './pages/Dashboard'
 import { Login } from './pages/Login'
