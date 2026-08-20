@@ -63,6 +63,18 @@ body {
   outline-offset: 2px;
 }
 
+/* Slow breathing glow behind the sign-in bolts. Killed entirely by the
+   reduced-motion block below. */
+@keyframes bolt-pulse {
+  0%,
+  100% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.24;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

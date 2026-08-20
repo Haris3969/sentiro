@@ -1,6 +1,7 @@
 import { TrendingUp } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { Navigate } from 'react-router-dom'
+import { LoginBolts } from '../components/LoginBolts'
 import { useAuth } from '../lib/auth'
 import { supabase } from '../lib/supabase'
 
@@ -40,8 +41,10 @@ export function Login() {
     'w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-[13px] text-text placeholder:text-dim transition-colors duration-150 ease-out focus:border-border-strong focus:outline-none'
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-bg px-4">
-      <div className="w-full max-w-[340px]">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-bg px-4">
+      <LoginBolts />
+
+      <div className="relative w-full max-w-[340px]">
         <div className="mb-7 flex items-center gap-2">
           <div className="grid h-7 w-7 place-items-center rounded-lg bg-accent text-bg">
             <TrendingUp size={15} />
